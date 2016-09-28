@@ -15,14 +15,25 @@
         android:text="Add new"
         android:id="@+id/addNew"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignRight="@+id/listView"
+        android:layout_alignEnd="@+id/listView" />
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listView"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/addNew" />
+        android:layout_centerHorizontal="true" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/fabadd"
+        android:layout_gravity="bottom"
+        android:clickable="true"
+        android:src="@drawable/ic_add_black_24dp"
+        android:layout_above="@+id/addNew"
+        android:layout_alignLeft="@+id/addNew"
+        android:layout_alignStart="@+id/addNew" />
 
 </RelativeLayout>

@@ -5,6 +5,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -13,17 +16,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements ShakeEventManager.ShakeListener {
 
     Button btnreset;
     Button btncontacts;
+    Button play;
     EmergContactDBHelper dbHelper;
     int REQUEST_SMS=1;
-    int ctr=0;
+    int ctr=1;
     private ShakeEventManager sd;
+    Intent mServiceIntent;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,16 +43,20 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         sd.setListener(this);
         sd.init(this);
 
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        final Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
 
         btnreset=(Button)findViewById(R.id.reset);
         btncontacts=(Button)findViewById(R.id.btncontacts);
+        play=(Button)findViewById(R.id.mp3button);
 
-        ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.SEND_SMS},REQUEST_SMS);
+
 
         btnreset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ctr=0;
+                r.stop();
             }
         });
         btncontacts.setOnClickListener(new View.OnClickListener() {
@@ -54,15 +64,34 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             public void onClick(View v) {
               //  Toast.makeText(MainActivity.this,"ok",Toast.LENGTH_SHORT).show();
                 Intent intent= new Intent(MainActivity.this,ContactsActivity.class);
-               intent.putExtra("ok",0);
                 startActivity(intent);
+            }
+        });
+
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // mServiceIntent = new Intent(getApplicationContext(), ShakeEventManager.class);
+                //startService(mServiceIntent);
+                r.play();
             }
         });
 
 
     }
 
+    /*@Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent=getIntent();
+        String message=intent.getStringExtra("message");
+        if(message=="Y"){
+            ConfirmDialogShow();
+        }
+    }*/
+
     public void ConfirmDialogShow() {
+
         final int[] check = {0};
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setMessage("").setTitle("Confirm Emergency");
@@ -88,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
             public void onTick(long millisUntilFinished) {
                 alertDialog.setMessage("Seconds remaining: " +(millisUntilFinished / 1000));
+
             }
 
             public void onFinish() {
@@ -138,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     private void sendMessage() {
         String sms="Help!";
-        //String number=txtPhoneNo.getText().toString();
         String number=dbHelper.getNumber();
         SmsManager smsManager=SmsManager.getDefault();
         smsManager.sendTextMessage(number,null,sms,null,null);
@@ -164,24 +193,23 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         if(ctr==0) {
             if(dbHelper.checkCount()==0){
                 Toast.makeText(MainActivity.this,"Please enter a contact",Toast.LENGTH_SHORT).show();
-
             }
             else {
-                ConfirmDialogShow();
 
+                ConfirmDialogShow();
             }
             ctr = 1;
         }
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         sd.register();
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         sd.deregister();
     }

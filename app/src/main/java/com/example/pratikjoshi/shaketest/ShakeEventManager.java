@@ -1,24 +1,30 @@
 package com.example.pratikjoshi.shaketest;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by Pratik Joshi on 09/07/2016.
  */
-public class ShakeEventManager implements SensorEventListener {
+public class ShakeEventManager extends Service implements SensorEventListener {
 
     private SensorManager sManager;
     private Sensor s;
 
-    private static final int MOV_COUNTS=2;
-    private static final int MOV_THRESHOLD=16;
+
+    private static final int MOV_COUNTS=1;
+    private static final int MOV_THRESHOLD=4;
     private static final float ALPHA=0.8F;
-    private static final int SHAKE_WINDOW_TIME_INTERVAL=5000;
+    private static final int SHAKE_WINDOW_TIME_INTERVAL=1000;
 
     //G-force
     private float gravity[]= new float[3];
@@ -29,6 +35,23 @@ public class ShakeEventManager implements SensorEventListener {
 
     public ShakeEventManager() {
 
+    }
+    @Override
+    public void onCreate() {
+        Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // Perform your long running operations here.
+        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+        return START_STICKY;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     public void setListener(ShakeListener listener){
@@ -67,8 +90,14 @@ public class ShakeEventManager implements SensorEventListener {
                 Log.d("SwA", "Mov counter ["+counter+"]");
 
                 if (counter >= MOV_COUNTS)
-                    if (listener != null)
+                    if (listener != null){
                         listener.onShake();
+                        /*Intent intent= new Intent(this,MainActivity.class);
+                        intent.putExtra("message","Y");
+                        startActivity(intent);*/
+
+                    }
+
             }
         }
     }
@@ -105,9 +134,16 @@ public class ShakeEventManager implements SensorEventListener {
         firstMoveTime = System.currentTimeMillis();
     }
 
+    private void openMain(){
+
+    }
 
     public static interface ShakeListener {
         public void onShake();
+
+        void onResume();
+
+        void onPause();
     }
 
 

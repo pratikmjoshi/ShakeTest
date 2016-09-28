@@ -78,7 +78,7 @@ public class EmergContactDBHelper extends SQLiteOpenHelper {
     public String getNumber(){
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor = db.query(true,PERSON_TABLE_NAME, new String[] {
-                PERSON_COLUMN_CONTACT}, 1 + "=" + PERSON_COLUMN_ID, null,
+                PERSON_COLUMN_CONTACT},null, null,
                 null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
